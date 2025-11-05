@@ -4,16 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx src/listTables.ts",
-    "list:tables": "tsx src/listTables.ts"
+    "dev": "tsx src/listTables.tsx",
+    "list:tables": "tsx src/listTables.tsx"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
-    "pg": "^8.16.3"
+    "ink": "^6.4.0",
+    "pg": "^8.16.3",
+    "react": "^19.2.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.0",
     "@types/pg": "^8.15.6",
+    "@types/react": "^19.2.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }

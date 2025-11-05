@@ -1,6 +1,6 @@
 # Overpaint: Data quality monitor for PostgresSQL
 
-A tiny TypeScript utility that connects to a PostgreSQL database and prints all user tables (schema-qualified) using `information_schema.tables`. This then shows the size of each table and its columns.
+A tiny TypeScript utility that connects to a PostgreSQL database and prints all user tables (schema-qualified) with a readable column summary.
 
 - Minimal setup, zero build step (runs via `tsx`)
 - Supports `DATABASE_URL` or individual `PG*` environment variables
@@ -13,43 +13,45 @@ A tiny TypeScript utility that connects to a PostgreSQL database and prints all 
 $ npm run list:tables
 Tables (schema.table) — ~rows (estimated), columns:
 
-- public.accounts — ~120000 rows, 6 cols
+public.orders — ~42000 rows, 8 cols
 
-  columns:
-  id          integer
-  email       character varying
-  created_at  timestamp with time zone
-  status      text
-  plan        text
-  balance     numeric
+name          type     range              values
+id            int      1-100000
+created_at    ts-ntz   Jan 2020-Oct 2025
+updated_at    ts-ntz   Jan 2020-Oct 2025
+customer_id   int      1-50000
+total_amount  numeric  5-10499
+delivered     bool                        Yes 28000 (66.7%) | No 14000 (33.3%)
+notes         text
+metadata      jsonb
 
-- public.transactions — ~987654 rows, 8 cols
+analytics.events — ~5300000 rows, 6 cols
 
-  columns:
-  id             bigint
-  account_id     integer
-  amount         numeric
-  currency       text
-  category       text
-  created_at     timestamp with time zone
-  description    text
-  is_disputed    boolean
+name         type     range              values
+event_date   date     Jan 2020-Oct 2025
+occurred_at  ts-ntz   Mar 2024-Oct 2025
+duration     time     00:00-23:59
+user_id      int      1-50000
+event_type   varchar
+props        jsonb
 
-- auth.users — ~5231 rows, 5 cols
+auth.users — ~12000 rows, 5 cols
 
-  columns:
-  id          uuid
-  email       character varying
-  role        text
-  created_at  timestamp with time zone
-  disabled    boolean
+name        type     range              values
+id          uuid
+email       varchar
+created_at  ts-ntz   Jan 2022-Oct 2025
+active      bool                        Yes 9600 (80.0%) | No 2400 (20.0%)
 ```
 
 # Features
 
-- Estimated row counts in a single, fast catalog query
-- Exact counts via `--exact` with controlled concurrency and `statement_timeout`
-- Per-table column details (name and data type)
+- Estimated row counts from catalog metadata (fast, single query)
+- Exact counts via `--exact` when needed
+- 4-column column view: name, type, range, values
+- Humanized types (≤8 chars) like `ts-ntz`, `varchar`, `float8`
+- Ranges for numeric and temporal types (e.g., `Oct 2020-Jan 2024`, `08:00-17:30`)
+- Boolean histograms with counts and percentages: `Yes N (x%) | No M (y%)`
 - Safe identifier quoting for schema/table names
 - `.env` support and `PG*` env variables, plus `DATABASE_URL`
 - Optional SSL via `PGSSL=true`
@@ -157,10 +159,13 @@ npm run list:tables -- --exact [--concurrency=3] [--statement-timeout-ms=10000]
 Example output:
 
 ```bash
-Tables:
-- public.accounts
-- public.transactions
-- auth.users
+Tables (schema.table) — ~rows (estimated), columns:
+public.example_table — ~1234 rows, 3 cols
+
+name   type   range     values
+id     int    1-1234
+active bool             Yes 900 (72.9%) | No 334 (27.1%)
+created ts-ntz Jan 2020-Oct 2025
 ```
 
 If no tables are found, you’ll see:
@@ -195,16 +200,17 @@ By default, the tool:
 
 - Aggregates column counts from `information_schema.columns`
 - Reads estimated row counts from `pg_class.reltuples` joined with `pg_namespace` (single, fast catalog query)
+- Computes MIN/MAX for numeric and temporal columns to show ranges
+- Counts boolean values using `COUNT(*) FILTER (WHERE col IS TRUE/FALSE)`
 
 With `--exact`, it:
 
-- Applies a `statement_timeout` (default 10s)
-- Runs `COUNT(*)` per table with a small concurrency pool (default 3)
+- Runs `COUNT(*)` per table (may be slow on very large tables)
 - Safely quotes schema/table identifiers
 
 Source:
 
-- `src/listTables.ts`
+- `src/listTables.tsx`
 
 ## License
 
