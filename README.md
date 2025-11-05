@@ -7,7 +7,7 @@ A tiny TypeScript utility that connects to a PostgreSQL database and prints all 
 - Optional SSL toggle (for managed DBs)
 - Efficient by default: gets row counts from PostgreSQL estimates in a single query; switch to exact counts with a flag
 
-# Demo
+## Demo
 
 ```bash
 $ npm run list:tables
@@ -44,7 +44,7 @@ created_at  ts-ntz   Jan 2022-Oct 2025
 active      bool                        Yes 9600 (80.0%) | No 2400 (20.0%)
 ```
 
-# Features
+## Features
 
 - Estimated row counts from catalog metadata (fast, single query)
 - Exact counts via `--exact` when needed
@@ -101,7 +101,7 @@ npm run list:tables
 
 You can configure the connection using one of the following methods.
 
-### Option A — DATABASE_URL
+## Option A — DATABASE_URL
 
 Set a single `DATABASE_URL` env var:
 
@@ -109,7 +109,7 @@ Set a single `DATABASE_URL` env var:
 export DATABASE_URL=postgres://USER:PASSWORD@HOST:5432/DBNAME
 ```
 
-### Option B — Individual PG variables
+## Option B — Individual PG variables
 
 Set the standard `PG*` variables:
 
@@ -123,7 +123,7 @@ export PGPASSWORD=your_password
 # export PGSSL=true
 ```
 
-### Option C — .env file
+## Option C — .env file
 
 Create a `.env` file in the project root:
 
