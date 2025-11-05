@@ -1,13 +1,13 @@
 # Overpaint: Data quality monitor for PostgresSQL
 
-A tiny TypeScript utility that connects to a PostgreSQL database and prints all user tables (schema-qualified) using `information_schema.tables`.
+A tiny TypeScript utility that connects to a PostgreSQL database and prints all user tables (schema-qualified) using `information_schema.tables`. This then shows the size of each table and its columns.
 
 - Minimal setup, zero build step (runs via `tsx`)
 - Supports `DATABASE_URL` or individual `PG*` environment variables
 - Optional SSL toggle (for managed DBs)
 - Efficient by default: gets row counts from PostgreSQL estimates in a single query; switch to exact counts with a flag
 
-# DEMO
+# Demo
 
 ```bash
 $ npm run list:tables
@@ -62,10 +62,37 @@ Tables (schema.table) — ~rows (estimated), columns:
 
 ## Installation
 
-This repository already contains everything needed. Just install dependencies:
+This repository already contains everything needed. Copy each step and run in order:
 
+Step 1 — Get the code
 ```bash
+git clone https://github.com/datograde/overpaint.git
+cd overpaint
 npm install
+```
+
+Step 2 — Configure database credentials (pick ONE)
+```bash
+# Single URL (recommended)
+export DATABASE_URL="postgres://USER:PASSWORD@HOST:5432/DBNAME"
+
+# OR individual vars
+# export PGHOST=localhost
+# export PGPORT=5432
+# export PGDATABASE=your_db
+# export PGUSER=your_user
+# export PGPASSWORD=your_password
+# Optional SSL:
+# export PGSSL=true
+```
+
+Step 3 — Run the tool
+```bash
+# Estimated row counts (fast)
+npm run list:tables
+
+# Exact row counts (slower)
+# npm run list:tables -- --exact
 ```
 
 ## Configuration
